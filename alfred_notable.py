@@ -11,7 +11,34 @@ file_name = "{}-{}.md".format(
     datetime.today().strftime('%Y-%m-%d'),
     name.replace(' ', '-').lower()
 )
-template = """# {title}
+folder = os.environ.get('noteable_folder')
+home = os.getenv("HOME")
+if folder:
+    if folder.startswith('~'):
+        folder = home + folder[1:]
+else:
+    folder = "{}/.notable".format(home)
+if folder.endswith('notes') or folder.endswith('notes/'):
+    pass
+else:
+    if folder.endswith('/'):
+        folder = '{}notes'.format(folder)
+    else:
+        folder = '{}/notes'.format(folder)
+if folder.endswith('/'):
+    folder = folder[:-1]
+
+try:
+    os.makedirs(folder)
+except OSError as e:
+    if e.errno != errno.EEXIST:
+        raise
+
+template_path = '{}{}template.txt'.format(folder, os.sep)
+if os.path.isfile(template_path):
+    template = open(template_path, 'r').read()
+else:
+    template = """# {title}
 
 ## Agenda
 
@@ -19,8 +46,9 @@ template = """# {title}
 2.
 
 ## Tasks
- * [x] Task One
- + [ ] Task Two 
+
+* [x] Task One
++ [ ] Task Two 
 
 ## Remarks
 
@@ -34,28 +62,10 @@ template = """# {title}
 [Cheatsheet](https://cheatsheet.md/notable.pdf) :smile:
 """
 
-data = template.format(title=title)
-folder = os.environ.get('noteable_folder')
-home = os.getenv("HOME")
-if folder:
-    if folder.startswith('~'):
-        folder = home + folder[1:]
+if os.environ.get('no_template'):
+    data = ""
 else:
-    folder = "{}/.notable".format(home)
-if not folder.endswith('notes') or not folder.endswith('notes/'):
-    if folder.endswith('/'):
-        folder = '{}notes'.format(folder)
-    else:
-        folder = '{}/notes'.format(folder)
-if folder.endswith('/'):
-    folder = folder[:-1]
-
-
-try:
-    os.makedirs(folder)
-except OSError as e:
-    if e.errno != errno.EEXIST:
-        raise
+    data = template.format(title=title)
 
 with open("{}{}{}".format(folder, os.sep, file_name), 'w') as f:
     f.write(data)
