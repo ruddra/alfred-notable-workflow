@@ -1,4 +1,4 @@
-# Alfred: Notes
+# Alfred: Notable
 
 An [alfred](https://www.alfredapp.com/) workflow which allows you to create new markdown files suitable to use with [Notable App](https://notable.app).
 
